@@ -6,7 +6,6 @@ export class ProjectController {
     static createProject = async (req: Request, res: Response) => {
 
         const project = new Project(req.body)
-
         try {
             await project.save()
             res.send('Proyecto Creado Correctamente')
@@ -20,6 +19,8 @@ export class ProjectController {
         try {
             const projects = await Project.find()
             res.json(projects)
+            console.log(projects);
+
         } catch (error) {
             console.log(error);
 
@@ -43,13 +44,19 @@ export class ProjectController {
     }
 
     static updateProjectById = async (req: Request, res: Response) => {
+
         const { id } = req.params
         try {
-            const project = await Project.findByIdAndUpdate(id, req.body)
+            const project = await Project.findById(id)
             if (!project) {
                 const error = new Error('Proyecto no encontrado')
                 return res.status(400).json({ error: error.message })
             }
+
+            project.clientName = req.body.clientName
+            project.projectName = req.body.projectName
+            project.description = req.body.descripcion
+
             await project.save()
             res.send('Projecto Actualizado')
         } catch (error) {

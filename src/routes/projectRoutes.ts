@@ -3,7 +3,8 @@ import { body, param } from "express-validator";
 import { ProjectController } from "../controllers/ProjectController";
 import { handleInputErrors } from "../middleware/validation";
 import { TaskController } from "../controllers/TaskController";
-import { validateProjectExists } from "../middleware/project";
+import { projectExists } from "../middleware/project";
+import { taskBelongsToProject, taskExist } from "../middleware/task";
 
 const router = Router()
 
@@ -25,7 +26,7 @@ router.put('/:id',
     body('clientName').notEmpty().withMessage('el nombre del cliente es obligatorio'),
     body('description').notEmpty().withMessage('la descripcion del proyecto es obligatorio'),
     handleInputErrors,
-    ProjectController.createProject)
+    ProjectController.updateProjectById)
 router.get('/', ProjectController.updateProjectById)
 router.delete('/:id',
     param('id').isMongoId().withMessage('Id no valido'),
@@ -35,7 +36,7 @@ router.delete('/:id',
 
 // COMO LAS TAREAS DEPENDEN DE LOS PROJECTOS SE COLOCARON AQUI
 
-router.param('projectId', validateProjectExists)
+router.param('projectId', projectExists)
 
 router.post('/:projectId/task',
     body('name').notEmpty().withMessage('el nombre de la tarea es obligatorio'),
@@ -46,6 +47,9 @@ router.post('/:projectId/task',
 router.get('/:projectId/task',
     TaskController.getProjectTasks
 )
+
+router.param('taskId', taskExist)
+router.param('taskId', taskBelongsToProject)
 
 router.get('/:projectId/task/:taskId',
     param('taskId').isMongoId().withMessage('Id no valido'),
@@ -65,6 +69,13 @@ router.delete('/:projectId/task/:taskId',
     param('taskId').isMongoId().withMessage('Id no valido'),
     handleInputErrors,
     TaskController.deleteTask
+)
+
+router.post('//:projectId/task/:taskId/status',
+    param('taskId').isMongoId().withMessage('Id no valido'),
+    body('status').notEmpty().withMessage('El estado es obligatorio'),
+    handleInputErrors,
+    TaskController.updateStatusTask
 )
 
 export default router
