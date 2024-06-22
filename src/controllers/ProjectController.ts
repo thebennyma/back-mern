@@ -19,11 +19,8 @@ export class ProjectController {
         try {
             const projects = await Project.find()
             res.json(projects)
-            console.log(projects);
-
         } catch (error) {
             console.log(error);
-
         }
     }
 
@@ -55,13 +52,12 @@ export class ProjectController {
 
             project.clientName = req.body.clientName
             project.projectName = req.body.projectName
-            project.description = req.body.descripcion
+            project.description = req.body.description
 
             await project.save()
             res.send('Projecto Actualizado')
         } catch (error) {
             console.log(error);
-
         }
     }
 
